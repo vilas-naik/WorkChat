@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
+import AuthShell from "../components/layout/AuthShell";
 import api from "../services/api";
 
 const Register = () => {
@@ -33,24 +34,18 @@ const Register = () => {
   };
 
   return (
-    <div className="min-h-screen bg-zinc-50 flex items-center justify-center p-4">
-      <div className="w-full max-w-md bg-white p-8 rounded-3xl shadow-sm border">
-        <h1 className="text-3xl font-bold mb-2">
-          Create Account
-        </h1>
-
-        <p className="text-zinc-500 mb-8">
-          Start using WorkChat
-        </p>
-
+    <AuthShell
+      title="Create account"
+      subtitle="Start your WorkChat workspace in a few seconds."
+    >
         <form
           onSubmit={handleRegister}
-          className="space-y-4"
+          className="mt-8 space-y-4"
         >
           <input
             type="text"
             placeholder="Name"
-            className="w-full border rounded-xl px-4 py-3"
+            className="w-full rounded-2xl border border-neutral-200 bg-neutral-50 px-4 py-3 text-neutral-950 outline-none transition placeholder:text-neutral-400 focus:border-blue-500 focus:bg-white focus:ring-4 focus:ring-blue-100"
             value={name}
             onChange={(e) =>
               setName(e.target.value)
@@ -60,7 +55,7 @@ const Register = () => {
           <input
             type="email"
             placeholder="Email"
-            className="w-full border rounded-xl px-4 py-3"
+            className="w-full rounded-2xl border border-neutral-200 bg-neutral-50 px-4 py-3 text-neutral-950 outline-none transition placeholder:text-neutral-400 focus:border-blue-500 focus:bg-white focus:ring-4 focus:ring-blue-100"
             value={email}
             onChange={(e) =>
               setEmail(e.target.value)
@@ -70,7 +65,7 @@ const Register = () => {
           <input
             type="password"
             placeholder="Password"
-            className="w-full border rounded-xl px-4 py-3"
+            className="w-full rounded-2xl border border-neutral-200 bg-neutral-50 px-4 py-3 text-neutral-950 outline-none transition placeholder:text-neutral-400 focus:border-blue-500 focus:bg-white focus:ring-4 focus:ring-blue-100"
             value={password}
             onChange={(e) =>
               setPassword(e.target.value)
@@ -78,27 +73,26 @@ const Register = () => {
           />
 
           {error && (
-            <p className="text-red-500 text-sm">
+            <p className="rounded-2xl border border-red-200 bg-red-50 px-4 py-3 text-sm font-medium text-red-600">
               {error}
             </p>
           )}
 
-          <button className="w-full bg-black text-white py-3 rounded-xl">
+          <button className="w-full rounded-2xl bg-blue-600 px-4 py-3 font-semibold text-white shadow-lg shadow-blue-200 transition hover:bg-blue-500">
             Create Account
           </button>
         </form>
 
-        <p className="mt-6 text-center text-zinc-500">
+        <p className="mt-6 text-center text-neutral-500">
           Already have an account?{" "}
           <Link
             to="/"
-            className="font-medium text-black"
+            className="font-semibold text-blue-600 transition hover:text-blue-500"
           >
             Login
           </Link>
         </p>
-      </div>
-    </div>
+    </AuthShell>
   );
 };
 

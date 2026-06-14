@@ -9,6 +9,7 @@ import supabase from "./db/supabase.js";
 import authRoutes from "./routes/authRoutes.js";
 import workspaceRoutes from "./routes/workspaceRoutes.js";
 import authMiddleware from "./middleware/authMiddleware.js";
+import channelRoutes from "./routes/channelRoutes.js"
 
 const app = express();
 
@@ -16,10 +17,8 @@ app.use(cors());
 app.use(express.json());
 
 app.use("/api/auth", authRoutes);
-app.use(
-    "/api/workspaces",
-    workspaceRoutes
-);
+app.use(  "/api/workspaces",workspaceRoutes);
+app.use("/api/channels",channelRoutes);
 
 
 app.get(
@@ -46,5 +45,5 @@ app.get(
 );
 
 app.listen(process.env.PORT, () => {
-    console.log(`Server running on port ${process.env.PORT}`);
+  console.log(`Server running on port ${process.env.PORT}`);
 });

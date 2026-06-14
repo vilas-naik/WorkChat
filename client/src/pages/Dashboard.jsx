@@ -1,8 +1,9 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 
-import Sidebar from "../components/layout/Sidebar";
-import Topbar from "../components/layout/Topbar";
+import ChannelSidebar from "../components/layout/ChannelSidebar";
+import MainContent from "../components/layout/MainContent";
+import WorkspaceSidebar from "../components/layout/WorkspaceSidebar";
 
 import api from "../services/api";
 
@@ -14,6 +15,10 @@ const Dashboard = () => {
   const [showModal, setShowModal] = useState(false);
   const [workspaceName, setWorkspaceName] = useState("");
   const [selectedWorkspace, setSelectedWorkspace] = useState(null);
+  const [channels, setChannels] = useState([]);
+  const [showChannelModal, setShowChannelModal] = useState(false);
+  const [channelName, setChannelName] = useState("");
+  const [selectedChannel, setSelectedChannel] = useState(null);
 
   const logout = () => {
     localStorage.removeItem("token");
@@ -21,32 +26,25 @@ const Dashboard = () => {
   };
 
   const fetchWorkspaces = async () => {
-
     try {
-
       const token = localStorage.getItem("token");
 
-      const { data } = await api.get(
-        "/workspaces",
-        {
-          headers: {
-            Authorization: `Bearer ${token}`
-          }
-        }
-      );
+      const { data } = await api.get("/workspaces", {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
 
       setWorkspaces(data);
       console.log("WORKSPACES:", data);
     } catch (err) {
       console.error(err);
     }
-
   };
 
   const fetchUser = async () => {
     try {
-      const token =
-        localStorage.getItem("token");
+      const token = localStorage.getItem("token");
 
       if (!token) {
         navigate("/");
@@ -67,23 +65,19 @@ const Dashboard = () => {
   };
 
   const createWorkspace = async () => {
-
     try {
-
-      const token =
-        localStorage.getItem("token");
+      const token = localStorage.getItem("token");
 
       await api.post(
         "/workspaces",
         {
-          name: workspaceName
+          name: workspaceName,
         },
         {
           headers: {
-            Authorization:
-              `Bearer ${token}`
-          }
-        }
+            Authorization: `Bearer ${token}`,
+          },
+        },
       );
 
       await fetchWorkspaces();
@@ -91,90 +85,208 @@ const Dashboard = () => {
       setWorkspaceName("");
 
       setShowModal(false);
-
     } catch (err) {
       console.error(err);
     }
-
   };
+
+  const fetchChannels = async (workspaceId) => {
+    try {
+      const token = localStorage.getItem("token");
+
+      const { data } = await api.get(`/channels/${workspaceId}`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
+      setChannels(data);
+      if (data.length > 0) {
+        setSelectedChannel(data[0]);
+      }
+    } catch (err) {
+      console.error(err);
+    }
+  };
+
+  const handleWorkspaceClick = (workspace) => {
+    setSelectedWorkspace(workspace);
+
+    fetchChannels(workspace.id);
+  };
+
+  const createChannel = async () => {
+    try {
+      const token = localStorage.getItem("token");
+
+      await api.post(
+        "/channels",
+        {
+          workspaceId: selectedWorkspace.id,
+          name: channelName,
+        },
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        },
+      );
+
+      await fetchChannels(selectedWorkspace.id);
+
+      setChannelName("");
+
+      setShowChannelModal(false);
+    } catch (err) {
+      console.error(err);
+    }
+  };
+
   useEffect(() => {
     fetchUser();
     fetchWorkspaces();
   }, []);
 
   return (
-    <div className="h-screen bg-zinc-50 flex">
-      <Sidebar
+    <div className="flex h-screen overflow-hidden bg-neutral-50 text-neutral-950">
+      <WorkspaceSidebar
         workspaces={workspaces}
+        selectedWorkspace={selectedWorkspace}
+        onWorkspaceClick={handleWorkspaceClick}
         setShowModal={setShowModal}
-        setSelectedWorkspace={setSelectedWorkspace}
-
+        user={user}
+        logout={logout}
       />
-      <div className="flex-1 flex flex-col">
-        <Topbar />
+      <ChannelSidebar
+        channels={channels}
+        selectedWorkspace={selectedWorkspace}
+        selectedChannel={selectedChannel}
+        setSelectedChannel={setSelectedChannel}
+        setShowChannelModal={setShowChannelModal}
+      />
 
-        <main className="flex-1 p-8">
-          <div className="bg-white rounded-3xl border h-full p-8">
-            <h1 className="text-3xl font-bold">
-              {
-                selectedWorkspace ? (
-                  <h1 className="text-3xl font-bold">
-                    {selectedWorkspace.name}
-                  </h1>
-                ) : (
-                  <h1 className="text-3xl font-bold">
-                    Select a Workspace
-                  </h1>
-                )
-              }
-            </h1>
+      <MainContent
+        user={user}
+        selectedWorkspace={selectedWorkspace}
+        selectedChannel={selectedChannel}
+        channels={channels}
+      />
 
-          </div>
-        </main>
-      </div>
-      {
-        showModal && (
-          <div className="fixed inset-0 bg-black/40 flex items-center justify-center">
-            <div className="bg-white rounded-2xl p-6 w-96">
-
-              <h2 className="text-xl font-semibold mb-4">
+      {showModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-neutral-950/60 p-4 backdrop-blur-sm">
+          <div className="w-full max-w-md rounded-3xl border border-neutral-200 bg-white p-6 shadow-2xl shadow-neutral-950/20">
+            <div>
+              <p className="text-sm font-semibold uppercase tracking-wide text-blue-600">
+                New workspace
+              </p>
+              <h2 className="mt-2 text-2xl font-bold tracking-tight text-neutral-950">
                 Create Workspace
               </h2>
+            </div>
 
-              <input
-                value={workspaceName}
-                onChange={(e) =>
-                  setWorkspaceName(e.target.value)
-                }
-                placeholder="Workspace Name"
-                className="w-full border rounded-lg p-3"
-              />
+            <input
+              value={workspaceName}
+              onChange={(e) => setWorkspaceName(e.target.value)}
+              placeholder="Workspace Name"
+              className="mt-6 w-full rounded-2xl border border-neutral-200 bg-neutral-50 px-4 py-3 text-neutral-950 outline-none transition placeholder:text-neutral-400 focus:border-blue-500 focus:bg-white focus:ring-4 focus:ring-blue-100"
+            />
 
-              <div className="flex gap-3 mt-4">
+            <div className="mt-5 flex gap-3">
+              <button
+                onClick={() => setShowModal(false)}
+                className="flex-1 rounded-2xl border border-neutral-200 px-4 py-3 font-semibold text-neutral-700 transition hover:bg-neutral-50"
+              >
+                Cancel
+              </button>
 
-                <button
-                  onClick={() =>
-                    setShowModal(false)
-                  }
-                  className="flex-1 border rounded-lg py-2"
-                >
-                  Cancel
-                </button>
-
-                <button onClick={createWorkspace}
-                  className="flex-1 bg-black text-white rounded-lg py-2"
-                >
-                  Create
-                </button>
-
-              </div>
-
+              <button
+                onClick={createWorkspace}
+                className="flex-1 rounded-2xl bg-blue-600 px-4 py-3 font-semibold text-white shadow-lg shadow-blue-200 transition hover:bg-blue-500"
+              >
+                Create
+              </button>
             </div>
           </div>
-        )
-      }
-    </div>
+        </div>
+      )}
 
+      {showChannelModal && (
+        <div
+          className="
+        fixed
+        inset-0
+        bg-black/50
+        flex
+        items-center
+        justify-center
+      "
+        >
+          <div
+            className="
+          bg-white
+          rounded-3xl
+          p-6
+          w-96
+        "
+          >
+            <h2
+              className="
+            text-xl
+            font-bold
+            mb-4
+          "
+            >
+              Create Channel
+            </h2>
+
+            <input
+              value={channelName}
+              onChange={(e) => setChannelName(e.target.value)}
+              placeholder="general"
+              className="
+            w-full
+            border
+            rounded-xl
+            p-3
+          "
+            />
+
+            <div
+              className="
+            flex
+            gap-3
+            mt-4
+          "
+            >
+              <button
+                onClick={() => setShowChannelModal(false)}
+                className="
+              flex-1
+              border
+              rounded-xl
+              py-2
+            "
+              >
+                Cancel
+              </button>
+
+              <button
+                onClick={createChannel}
+                className="
+              flex-1
+              bg-black
+              text-white
+              rounded-xl
+              py-2
+            "
+              >
+                Create
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+    </div>
   );
 };
 
