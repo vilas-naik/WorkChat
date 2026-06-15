@@ -2,8 +2,8 @@ const ChannelSidebar = ({
   selectedWorkspace,
   channels,
   selectedChannel,
-  setSelectedChannel,
   setShowChannelModal,
+  onChannelClick,
 }) => {
   return (
     <aside className="hidden h-screen w-64 shrink-0 flex-col border-r border-neutral-800 bg-neutral-900 text-white md:flex lg:w-72">
@@ -32,7 +32,7 @@ const ChannelSidebar = ({
             channels.map((channel, index) => (
               <button
                 key={channel.id}
-                onClick={() => setSelectedChannel(channel)}
+                onClick={() => onChannelClick(channel)}
                 className={`flex w-full items-center gap-2 rounded-xl px-3 py-2.5 text-left text-sm font-medium transition-all duration-200 ${
                   selectedChannel?.id === channel.id
                     ? "bg-white/10 text-white shadow-sm"

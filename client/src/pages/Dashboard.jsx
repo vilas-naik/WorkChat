@@ -19,6 +19,8 @@ const Dashboard = () => {
   const [showChannelModal, setShowChannelModal] = useState(false);
   const [channelName, setChannelName] = useState("");
   const [selectedChannel, setSelectedChannel] = useState(null);
+  const [messages, setMessages] = useState([]);
+  const [messageInput, setMessageInput] = useState("");
 
   const logout = () => {
     localStorage.removeItem("token");
@@ -101,8 +103,13 @@ const Dashboard = () => {
       });
 
       setChannels(data);
+
       if (data.length > 0) {
         setSelectedChannel(data[0]);
+        fetchMessages(data[0].id);
+      } else {
+        setSelectedChannel(null);
+        setMessages([]);
       }
     } catch (err) {
       console.error(err);
@@ -142,6 +149,55 @@ const Dashboard = () => {
     }
   };
 
+  const fetchMessages = async (channelId) => {
+    try {
+      const token = localStorage.getItem("token");
+
+      const { data } = await api.get(`/messages/${channelId}`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
+      setMessages(data);
+    } catch (err) {
+      console.error(err);
+    }
+  };
+
+  const sendMessage = async () => {
+    if (!messageInput.trim()) return;
+
+    try {
+      const token = localStorage.getItem("token");
+
+      await api.post(
+        "/messages",
+        {
+          channelId: selectedChannel.id,
+          content: messageInput,
+        },
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        },
+      );
+
+      await fetchMessages(selectedChannel.id);
+
+      setMessageInput("");
+    } catch (err) {
+      console.error(err);
+    }
+  };
+
+  const handleChannelClick = (channel) => {
+    setSelectedChannel(channel);
+
+    fetchMessages(channel.id);
+  };
+
   useEffect(() => {
     fetchUser();
     fetchWorkspaces();
@@ -163,6 +219,7 @@ const Dashboard = () => {
         selectedChannel={selectedChannel}
         setSelectedChannel={setSelectedChannel}
         setShowChannelModal={setShowChannelModal}
+        onChannelClick={handleChannelClick}
       />
 
       <MainContent
@@ -170,6 +227,10 @@ const Dashboard = () => {
         selectedWorkspace={selectedWorkspace}
         selectedChannel={selectedChannel}
         channels={channels}
+        messages={messages}
+        messageInput={messageInput}
+        setMessageInput={setMessageInput}
+        sendMessage={sendMessage}
       />
 
       {showModal && (

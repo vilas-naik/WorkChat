@@ -1,4 +1,12 @@
-const MainContent = ({ user, selectedWorkspace, channels }) => {
+const MainContent = ({
+  user,
+  selectedWorkspace,
+  selectedChannel,
+  messages,
+  messageInput,
+  setMessageInput,
+  sendMessage,
+}) => {
   return (
     <main className="flex min-w-0 flex-1 bg-neutral-50 p-4 sm:p-6 lg:p-8">
       <section className="flex min-h-full w-full flex-col rounded-[2rem] border border-neutral-200/80 bg-white shadow-sm shadow-neutral-200/70">
@@ -11,70 +19,71 @@ const MainContent = ({ user, selectedWorkspace, channels }) => {
           </div>
         </div>
 
-        {!selectedWorkspace ? (
-          <div className="flex flex-1 items-center justify-center px-6 py-16">
-            <div className="max-w-2xl text-center">
-              <p className="mb-4 text-sm font-semibold uppercase tracking-wide text-blue-600">
-                Team communication, focused
-              </p>
-              <h2 className="text-4xl font-bold tracking-tight text-neutral-950 sm:text-5xl lg:text-6xl">
-                Build with your team.
-              </h2>
-              <p className="mx-auto mt-5 max-w-xl text-lg leading-8 text-neutral-500">
-                Select a workspace to open its channels and start collaborating
-                in a calm, organized space.
-              </p>
-            </div>
-          </div>
-        ) : (
-          <div className="flex flex-1 flex-col px-5 py-6 sm:px-8 lg:px-10">
-            <div className="max-w-3xl">
-              <p className="text-sm font-semibold uppercase tracking-wide text-blue-600">
-                Active workspace
-              </p>
-              <h2 className="mt-3 text-4xl font-bold tracking-tight text-neutral-950 sm:text-5xl">
-                {selectedWorkspace.name}
-              </h2>
-              <p className="mt-4 text-lg leading-8 text-neutral-500">
-                Keep conversations tidy by moving through the channels in this
-                workspace.
-              </p>
-            </div>
+        <div className="flex flex-1 flex-col">
+          {!selectedChannel ? (
+            <div className="flex flex-1 items-center justify-center">
+              <div className="text-center">
+                <h2 className="text-4xl font-bold">Select a Channel</h2>
 
-            <div className="mt-10 grid gap-3 sm:grid-cols-2 xl:grid-cols-3">
-              {channels.map((channel) => (
-                <div
-                  key={channel.id}
-                  className="rounded-2xl border border-neutral-200 bg-neutral-50/80 p-5 shadow-sm transition duration-200 hover:-translate-y-0.5 hover:border-neutral-300 hover:bg-white hover:shadow-md"
-                >
-                  <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-blue-600 text-xl font-semibold text-white shadow-lg shadow-blue-200">
-                    #
+                <p className="mt-3 text-neutral-500">
+                  Choose a channel to start chatting.
+                </p>
+              </div>
+            </div>
+          ) : (
+            <>
+              <div className="border-b border-neutral-200 px-8 py-5">
+                <h2 className="text-2xl font-bold"># {selectedChannel.name}</h2>
+              </div>
+
+              <div className="flex-1 overflow-y-auto p-6 space-y-4">
+                {messages.map((message) => (
+                  <div
+                    key={message.id}
+                    className="
+              rounded-2xl
+              bg-neutral-100
+              p-4
+            "
+                  >
+                    <p className="font-semibold">{message.users?.name}</p>
+
+                    <p className="mt-1">{message.content}</p>
                   </div>
-                  <h3 className="mt-5 truncate text-lg font-semibold text-neutral-950">
-                    {channel.name}
-                  </h3>
-                  <p className="mt-2 text-sm leading-6 text-neutral-500">
-                    Channel conversations and updates appear here.
-                  </p>
-                </div>
-              ))}
-            </div>
+                ))}
+              </div>
 
-            {channels.length === 0 && (
-              <div className="mt-10 flex flex-1 items-center justify-center rounded-3xl border border-dashed border-neutral-300 bg-neutral-50 px-6 py-16 text-center">
-                <div className="max-w-md">
-                  <h3 className="text-2xl font-bold tracking-tight text-neutral-950">
-                    No channels yet.
-                  </h3>
-                  <p className="mt-3 text-base leading-7 text-neutral-500">
-                    Once channels are created for this workspace, they will show
-                    up here with the same structure your team expects.
-                  </p>
+              <div className="border-t border-neutral-200 p-4">
+                <div className="flex gap-3">
+                  <input
+                    value={messageInput}
+                    onChange={(e) => setMessageInput(e.target.value)}
+                    placeholder={`Message #${selectedChannel.name}`}
+                    className="
+              flex-1
+              rounded-xl
+              border
+              px-4
+              py-3
+            "
+                  />
+
+                  <button
+                    onClick={sendMessage}
+                    className="
+              rounded-xl
+              bg-blue-600
+              px-5
+              text-white
+            "
+                  >
+                    Send
+                  </button>
                 </div>
               </div>
-            )}
-          </div>
-        )}
+            </>
+          )}
+        </div>
       </section>
     </main>
   );
