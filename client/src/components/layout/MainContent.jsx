@@ -7,6 +7,13 @@ const MainContent = ({
   setMessageInput,
   sendMessage,
 }) => {
+  const bottomRef = useRef(null);
+
+  useEffect(() => {
+    bottomRef.current?.scrollIntoView({
+      behavior: "smooth",
+    });
+  }, [messages]);
   return (
     <main className="flex min-w-0 flex-1 bg-neutral-50 p-4 sm:p-6 lg:p-8">
       <section className="flex min-h-full w-full flex-col rounded-[2rem] border border-neutral-200/80 bg-white shadow-sm shadow-neutral-200/70">
@@ -47,16 +54,28 @@ const MainContent = ({
             "
                   >
                     <p className="font-semibold">{message.users?.name}</p>
+                    <p className="text-xs text-neutral-500">
+                      {new Date(message.created_at).toLocaleTimeString([], {
+                        hour: "2-digit",
+                        minute: "2-digit",
+                      })}
+                    </p>
 
                     <p className="mt-1">{message.content}</p>
                   </div>
                 ))}
+                <div ref={bottomRef}></div>
               </div>
 
               <div className="border-t border-neutral-200 p-4">
                 <div className="flex gap-3">
                   <input
                     value={messageInput}
+                    onKeyDown={(e) => {
+                      if (e.key === "Enter") {
+                        sendMessage();
+                      }
+                    }}
                     onChange={(e) => setMessageInput(e.target.value)}
                     placeholder={`Message #${selectedChannel.name}`}
                     className="
