@@ -4,6 +4,7 @@ const ChannelSidebar = ({
   selectedChannel,
   setShowChannelModal,
   onChannelClick,
+  handleChannelClick
 }) => {
   return (
     <aside className="hidden h-screen w-64 shrink-0 flex-col border-r border-neutral-800 bg-neutral-900 text-white md:flex lg:w-72">

@@ -1,3 +1,5 @@
+import { useEffect, useRef } from "react";
+
 const MainContent = ({
   user,
   selectedWorkspace,
@@ -16,7 +18,7 @@ const MainContent = ({
   }, [messages]);
   return (
     <main className="flex min-w-0 flex-1 bg-neutral-50 p-4 sm:p-6 lg:p-8">
-      <section className="flex min-h-full w-full flex-col rounded-[2rem] border border-neutral-200/80 bg-white shadow-sm shadow-neutral-200/70">
+      <section className="flex min-h-0 h-full w-full flex-col rounded-[2rem] border border-neutral-200/80 bg-white shadow-sm shadow-neutral-200/70">
         <div className="flex items-center justify-between border-b border-neutral-100 px-5 py-4 sm:px-8">
           <div className="min-w-0">
             <p className="text-sm font-medium text-neutral-500">WorkChat</p>
@@ -26,7 +28,7 @@ const MainContent = ({
           </div>
         </div>
 
-        <div className="flex flex-1 flex-col">
+        <div className="flex flex-1 flex-col min-h-0">
           {!selectedChannel ? (
             <div className="flex flex-1 items-center justify-center">
               <div className="text-center">
@@ -43,7 +45,7 @@ const MainContent = ({
                 <h2 className="text-2xl font-bold"># {selectedChannel.name}</h2>
               </div>
 
-              <div className="flex-1 overflow-y-auto p-6 space-y-4">
+              <div className="min-h-0 flex-1 overflow-y-auto p-6 space-y-4">
                 {messages.map((message) => (
                   <div
                     key={message.id}

@@ -1,6 +1,8 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 
+import supabase from "../services/supabase";
+
 import ChannelSidebar from "../components/layout/ChannelSidebar";
 import MainContent from "../components/layout/MainContent";
 import WorkspaceSidebar from "../components/layout/WorkspaceSidebar";
@@ -140,7 +142,11 @@ const Dashboard = () => {
       );
 
       await fetchChannels(selectedWorkspace.id);
+      const newChannel = data.channel;
 
+      setSelectedChannel(newChannel);
+
+      await fetchMessages(newChannel.id);
       setChannelName("");
 
       setShowChannelModal(false);
@@ -199,6 +205,32 @@ const Dashboard = () => {
   };
 
   useEffect(() => {
+    const channel = supabase
+      .channel("messages")
+      .on(
+        "postgres_changes",
+        {
+          event: "INSERT",
+          schema: "public",
+          table: "messages",
+        },
+        (payload) => {
+          if (
+            selectedChannel &&
+            payload.new.channel_id === selectedChannel.id
+          ) {
+            fetchMessages(selectedChannel.id);
+          }
+        },
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, [selectedChannel]);
+
+  useEffect(() => {
     fetchUser();
     fetchWorkspaces();
   }, []);
@@ -220,6 +252,7 @@ const Dashboard = () => {
         setSelectedChannel={setSelectedChannel}
         setShowChannelModal={setShowChannelModal}
         onChannelClick={handleChannelClick}
+        handleChannelClick={handleChannelClick}
       />
 
       <MainContent
