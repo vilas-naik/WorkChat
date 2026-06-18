@@ -23,6 +23,9 @@ const Dashboard = () => {
   const [selectedChannel, setSelectedChannel] = useState(null);
   const [messages, setMessages] = useState([]);
   const [messageInput, setMessageInput] = useState("");
+  const [showJoinModal, setShowJoinModal] = useState(false);
+  const [inviteCode, setInviteCode] = useState("");
+  const [creatingWorkspace, setCreatingWorkspace] = useState(false);
 
   const logout = () => {
     localStorage.removeItem("token");
@@ -69,6 +72,9 @@ const Dashboard = () => {
   };
 
   const createWorkspace = async () => {
+    if (creatingWorkspace) return;
+    setCreatingWorkspace(true);
+
     try {
       const token = localStorage.getItem("token");
 
@@ -87,10 +93,37 @@ const Dashboard = () => {
       await fetchWorkspaces();
 
       setWorkspaceName("");
-
       setShowModal(false);
     } catch (err) {
       console.error(err);
+    } finally {
+      setCreatingWorkspace(false);
+    }
+  };
+
+  const joinWorkspace = async () => {
+    try {
+      const token = localStorage.getItem("token");
+
+      await api.post(
+        "/workspaces/join",
+        {
+          inviteCode,
+        },
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        },
+      );
+
+      await fetchWorkspaces();
+
+      setInviteCode("");
+      setShowJoinModal(false);
+    } catch (err) {
+      console.error(err);
+      alert(err.response?.data?.message || "Failed to join workspace");
     }
   };
 
@@ -126,6 +159,10 @@ const Dashboard = () => {
 
   const createChannel = async () => {
     try {
+      if (!selectedWorkspace) {
+        alert("Select a workspace first");
+        return;
+      }
       const token = localStorage.getItem("token");
 
       await api.post(
@@ -142,13 +179,8 @@ const Dashboard = () => {
       );
 
       await fetchChannels(selectedWorkspace.id);
-      const newChannel = data.channel;
 
-      setSelectedChannel(newChannel);
-
-      await fetchMessages(newChannel.id);
       setChannelName("");
-
       setShowChannelModal(false);
     } catch (err) {
       console.error(err);
@@ -277,6 +309,20 @@ const Dashboard = () => {
                 Create Workspace
               </h2>
             </div>
+            <button
+              onClick={() => setShowJoinModal(true)}
+              onClick={() => setShowModal(false)}
+              className="
+    rounded-xl
+    border
+    px-4
+    py-2
+    text-sm
+    font-medium
+  "
+            >
+              Join Workspace
+            </button>
 
             <input
               value={workspaceName}
@@ -293,11 +339,77 @@ const Dashboard = () => {
                 Cancel
               </button>
 
+              <button disabled={creatingWorkspace} onClick={createWorkspace}>
+                {creatingWorkspace ? "Creating..." : "Create"}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {showJoinModal && (
+        <div
+          className="fixed inset-0 
+      flex
+      items-center
+      justify-center
+      bg-black/50
+    "
+        >
+          <div
+            className="
+        w-96
+        rounded-3xl
+        bg-white
+        p-6
+      "
+          >
+            <h2
+              className="
+          mb-4
+          text-xl
+          font-bold
+        "
+            >
+              Join Workspace
+            </h2>
+
+            <input
+              value={inviteCode}
+              onChange={(e) => setInviteCode(e.target.value)}
+              placeholder="Invite Code"
+              className="
+          w-full
+          rounded-xl
+          border
+          p-3
+        "
+            />
+
+            <div className="mt-4 flex gap-3">
               <button
-                onClick={createWorkspace}
-                className="flex-1 rounded-2xl bg-blue-600 px-4 py-3 font-semibold text-white shadow-lg shadow-blue-200 transition hover:bg-blue-500"
+                onClick={() => setShowJoinModal(false)}
+                className="
+            flex-1
+            rounded-xl
+            border
+            py-2
+          "
               >
-                Create
+                Cancel
+              </button>
+
+              <button
+                onClick={joinWorkspace}
+                className="
+            flex-1
+            rounded-xl
+            bg-blue-600
+            py-2
+            text-white
+          "
+              >
+                Join
               </button>
             </div>
           </div>

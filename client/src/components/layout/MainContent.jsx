@@ -41,9 +41,6 @@ const MainContent = ({
             </div>
           ) : (
             <>
-              <div className="border-b border-neutral-200 px-8 py-5">
-                <h2 className="text-2xl font-bold"># {selectedChannel.name}</h2>
-              </div>
 
               <div className="min-h-0 flex-1 overflow-y-auto p-6 space-y-4">
                 {messages.map((message) => (

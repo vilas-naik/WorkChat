@@ -1,6 +1,7 @@
 import UserCard from "./UserCard";
 
-const getWorkspaceInitial = (name) => name?.trim()?.charAt(0)?.toUpperCase() || "W";
+const getWorkspaceInitial = (name) =>
+  name?.trim()?.charAt(0)?.toUpperCase() || "W";
 
 const WorkspaceSidebar = ({
   workspaces,
@@ -21,20 +22,22 @@ const WorkspaceSidebar = ({
           const isActive = selectedWorkspace?.id === workspace.id;
 
           return (
-            <button
-              key={workspace.id}
-              onClick={() => onWorkspaceClick(workspace)}
-              title={workspace.name}
-              className={`group flex h-12 w-12 items-center justify-center rounded-2xl text-base font-bold transition-all duration-200 ${
-                isActive
-                  ? "bg-blue-600 text-white shadow-lg shadow-blue-950/50"
-                  : "bg-neutral-900 text-neutral-300 ring-1 ring-white/5 hover:-translate-y-0.5 hover:bg-neutral-800 hover:text-white"
-              }`}
-            >
-              <span className="transition-transform duration-200 group-hover:scale-105">
-                {getWorkspaceInitial(workspace.name)}
-              </span>
-            </button>
+            <div>
+              <button
+                key={workspace.id}
+                onClick={() => onWorkspaceClick(workspace)}
+                title={workspace.name}
+                className={`group flex h-12 w-12 items-center justify-center rounded-2xl text-base font-bold transition-all duration-200 ${
+                  isActive
+                    ? "bg-blue-600 text-white shadow-lg shadow-blue-950/50"
+                    : "bg-neutral-900 text-neutral-300 ring-1 ring-white/5 hover:-translate-y-0.5 hover:bg-neutral-800 hover:text-white"
+                }`}
+              >
+                <span className="transition-transform duration-200 group-hover:scale-105">
+                  {getWorkspaceInitial(workspace.name)}
+                </span>
+              </button>
+            </div>
           );
         })}
 
