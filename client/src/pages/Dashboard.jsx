@@ -26,6 +26,8 @@ const Dashboard = () => {
   const [showJoinModal, setShowJoinModal] = useState(false);
   const [inviteCode, setInviteCode] = useState("");
   const [creatingWorkspace, setCreatingWorkspace] = useState(false);
+  const [editingMessage, setEditingMessage] = useState(null);
+  const [editText, setEditText] = useState("");
 
   const logout = () => {
     localStorage.removeItem("token");
@@ -198,6 +200,7 @@ const Dashboard = () => {
       });
 
       setMessages(data);
+      console.log(data);
     } catch (err) {
       console.error(err);
     }
@@ -230,6 +233,46 @@ const Dashboard = () => {
     }
   };
 
+  const deleteMessage = async (messageId) => {
+    try {
+      const token = localStorage.getItem("token");
+
+      await api.delete(`/messages/${messageId}`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
+      await fetchMessages(selectedChannel.id);
+    } catch (err) {
+      console.error(err);
+    }
+  };
+
+    const updateMessage = async (messageId) => {
+      try {
+        const token = localStorage.getItem("token");
+
+        await api.put(
+          `/messages/${messageId}`,
+          {
+            content: editText,
+          },
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          },
+        );
+
+        await fetchMessages(selectedChannel.id);
+
+        setEditingMessage(null);
+        setEditText("");
+      } catch (err) {
+        console.error(err);
+      }
+    };
   const handleChannelClick = (channel) => {
     setSelectedChannel(channel);
 
@@ -247,10 +290,7 @@ const Dashboard = () => {
           table: "messages",
         },
         (payload) => {
-          if (
-            selectedChannel &&
-            payload.new.channel_id === selectedChannel.id
-          ) {
+          if (selectedChannel && payload.new.channel_id === selectedChannel.id) {
             fetchMessages(selectedChannel.id);
           }
         },
@@ -296,22 +336,27 @@ const Dashboard = () => {
         messageInput={messageInput}
         setMessageInput={setMessageInput}
         sendMessage={sendMessage}
+        deleteMessage={deleteMessage}
+        updateMessage={updateMessage}
+        editingMessage={editingMessage}
+        setEditingMessage={setEditingMessage}
+        editText={editText}
+        setEditText={setEditText}
+        updateMessage={updateMessage}
       />
 
       {showModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-neutral-950/60 p-4 backdrop-blur-sm">
           <div className="w-full max-w-md rounded-3xl border border-neutral-200 bg-white p-6 shadow-2xl shadow-neutral-950/20">
             <div>
-              <p className="text-sm font-semibold uppercase tracking-wide text-blue-600">
-                New workspace
-              </p>
-              <h2 className="mt-2 text-2xl font-bold tracking-tight text-neutral-950">
-                Create Workspace
-              </h2>
+              <p className="text-sm font-semibold uppercase tracking-wide text-blue-600">New workspace</p>
+              <h2 className="mt-2 text-2xl font-bold tracking-tight text-neutral-950">Create Workspace</h2>
             </div>
             <button
-              onClick={() => setShowJoinModal(true)}
-              onClick={() => setShowModal(false)}
+              onClick={() => {
+                setShowModal(false);
+                setShowJoinModal(true);
+              }}
               className="
     rounded-xl
     border
