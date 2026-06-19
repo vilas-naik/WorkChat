@@ -185,3 +185,55 @@ export const deleteWorkspace = async (req, res) => {
     });
   }
 };
+
+export const updateWorkspace = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { name } = req.body;
+
+    if (!name?.trim()) {
+      return res.status(400).json({
+        message: "Workspace name is required",
+      });
+    }
+
+    const { data: workspace, error: workspaceError } = await supabase
+      .from("workspaces")
+      .select("*")
+      .eq("id", id)
+      .single();
+
+    if (workspaceError || !workspace) {
+      return res.status(404).json({
+        message: "Workspace not found",
+      });
+    }
+
+    if (workspace.owner_id !== req.user.id) {
+      return res.status(403).json({
+        message: "Only the workspace owner can rename this workspace",
+      });
+    }
+
+    const { data, error } = await supabase
+      .from("workspaces")
+      .update({
+        name: name.trim(),
+      })
+      .eq("id", id)
+      .select()
+      .single();
+
+    if (error) {
+      return res.status(400).json({
+        message: error.message,
+      });
+    }
+
+    res.json(data);
+  } catch (err) {
+    res.status(500).json({
+      message: err.message,
+    });
+  }
+};

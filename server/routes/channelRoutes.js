@@ -4,6 +4,7 @@ import {
   createChannel,
   deleteChannel,
   getChannels,
+  updateChannel,
 } from "../controllers/channelController.js";
 
 import authMiddleware from "../middleware/authMiddleware.js";
@@ -20,6 +21,12 @@ router.get(
   "/:workspaceId",
   authMiddleware,
   getChannels
+);
+
+router.put(
+  "/:id",
+  authMiddleware,
+  updateChannel
 );
 
 router.delete(

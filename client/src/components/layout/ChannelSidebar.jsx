@@ -10,9 +10,25 @@ const ChannelSidebar = ({
   setShowChannelModal,
   onChannelClick,
   deleteChannel,
+  updateChannel,
 }) => {
   const [copied, setCopied] = useState(false);
+  const [editingChannel, setEditingChannel] = useState(null);
+  const [channelName, setChannelName] = useState("");
   const canDeleteChannels = selectedWorkspace?.owner_id === user?.id;
+
+  const startRenamingChannel = (channel) => {
+    setEditingChannel(channel.id);
+    setChannelName(channel.name);
+  };
+
+  const saveChannelName = async (channel) => {
+    if (!channelName.trim()) return;
+
+    await updateChannel(channel, channelName);
+    setEditingChannel(null);
+    setChannelName("");
+  };
 
   return (
     <aside className="hidden h-screen w-64 shrink-0 flex-col border-r border-neutral-800 bg-neutral-900 text-white md:flex lg:w-72">
@@ -83,24 +99,63 @@ const ChannelSidebar = ({
                 }`}
               >
                 <div className="flex min-w-0 flex-1 items-center gap-1">
-                  <button
-                    onClick={() => onChannelClick(channel)}
-                    className="flex min-w-0 items-center gap-2 text-left"
-                  >
-                    <span className="text-neutral-500">#</span>
-                    <span className="truncate">{channel.name}</span>
-                  </button>
-                  {canDeleteChannels && (
-                    <button
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        deleteChannel(channel);
+                  {editingChannel === channel.id ? (
+                    <form
+                      onSubmit={(e) => {
+                        e.preventDefault();
+                        saveChannelName(channel);
                       }}
-                      className="shrink-0 rounded px-1 text-xs text-neutral-600 transition hover:bg-red-500/10 hover:text-red-300"
-                      aria-label={`Delete ${channel.name}`}
+                      className="flex min-w-0 flex-1 gap-1"
                     >
-                      x
-                    </button>
+                      <input
+                        value={channelName}
+                        onChange={(e) => setChannelName(e.target.value)}
+                        autoFocus
+                        className="min-w-0 flex-1 rounded-lg border border-white/10 bg-neutral-950 px-2 py-1 text-sm text-white outline-none"
+                      />
+                      <button
+                        type="submit"
+                        className="rounded-lg bg-blue-600 px-2 text-xs text-white"
+                      >
+                        Save
+                      </button>
+                    </form>
+                  ) : (
+                    <>
+                      <button
+                        onClick={() => onChannelClick(channel)}
+                        className="flex min-w-0 items-center gap-2 text-left"
+                      >
+                        <span className="text-neutral-500">#</span>
+                        <span className="truncate">{channel.name}</span>
+                      </button>
+
+                      {canDeleteChannels && (
+                        <>
+                          <button
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              startRenamingChannel(channel);
+                            }}
+                            className="shrink-0 rounded px-1 text-xs text-neutral-600 transition hover:bg-white/10 hover:text-white"
+                            aria-label={`Rename ${channel.name}`}
+                          >
+                            ✏️
+                          </button>
+
+                          <button
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              deleteChannel(channel);
+                            }}
+                            className="shrink-0 rounded px-1 text-xs text-neutral-600 transition hover:bg-red-500/10 hover:text-red-300"
+                            aria-label={`Delete ${channel.name}`}
+                          >
+                            x
+                          </button>
+                        </>
+                      )}
+                    </>
                   )}
                 </div>
               </div>

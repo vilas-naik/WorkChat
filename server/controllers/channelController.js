@@ -104,3 +104,64 @@ export const deleteChannel = async (req, res) => {
     });
   }
 };
+
+export const updateChannel = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { name } = req.body;
+
+    if (!name?.trim()) {
+      return res.status(400).json({
+        message: "Channel name is required",
+      });
+    }
+
+    const { data: channel, error: channelError } = await supabase
+      .from("channels")
+      .select("*")
+      .eq("id", id)
+      .single();
+
+    if (channelError || !channel) {
+      return res.status(404).json({
+        message: "Channel not found",
+      });
+    }
+
+    const { data: workspace, error: workspaceError } = await supabase
+      .from("workspaces")
+      .select("owner_id")
+      .eq("id", channel.workspace_id)
+      .single();
+
+    if (workspaceError || !workspace) {
+      return res.status(404).json({
+        message: "Workspace not found",
+      });
+    }
+
+    if (workspace.owner_id !== req.user.id) {
+      return res.status(403).json({
+        message: "Only the workspace owner can rename channels",
+      });
+    }
+
+    const { data, error } = await supabase
+      .from("channels")
+      .update({
+        name: name.trim(),
+      })
+      .eq("id", id)
+      .select()
+      .single();
+
+    if (error) throw error;
+
+    res.json(data);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({
+      message: "Failed to rename channel",
+    });
+  }
+};

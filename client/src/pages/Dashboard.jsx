@@ -28,6 +28,9 @@ const Dashboard = () => {
   const [creatingWorkspace, setCreatingWorkspace] = useState(false);
   const [editingMessage, setEditingMessage] = useState(null);
   const [editText, setEditText] = useState("");
+  const [sidebarExpanded, setSidebarExpanded] = useState(
+    () => localStorage.getItem("workspaceSidebarExpanded") === "true",
+  );
 
   const logout = () => {
     localStorage.removeItem("token");
@@ -160,6 +163,36 @@ const Dashboard = () => {
     }
   };
 
+  const updateWorkspace = async (workspace, name) => {
+    try {
+      const token = localStorage.getItem("token");
+
+      await api.put(
+        `/workspaces/${workspace.id}`,
+        {
+          name,
+        },
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        },
+      );
+
+      const { data } = await api.get("/workspaces", {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
+      setWorkspaces(data);
+      setSelectedWorkspace(data.find((item) => item.id === workspace.id) || null);
+    } catch (err) {
+      console.error(err);
+      alert(err.response?.data?.message || "Failed to rename workspace");
+    }
+  };
+
   const fetchChannels = async (workspaceId) => {
     try {
       const token = localStorage.getItem("token");
@@ -251,6 +284,41 @@ const Dashboard = () => {
     } catch (err) {
       console.error(err);
       alert(err.response?.data?.message || "Failed to delete channel");
+    }
+  };
+
+  const updateChannel = async (channel, name) => {
+    if (!selectedWorkspace) return;
+
+    try {
+      const token = localStorage.getItem("token");
+
+      await api.put(
+        `/channels/${channel.id}`,
+        {
+          name,
+        },
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        },
+      );
+
+      const { data } = await api.get(`/channels/${selectedWorkspace.id}`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
+      setChannels(data);
+
+      if (selectedChannel?.id === channel.id) {
+        setSelectedChannel(data.find((item) => item.id === channel.id) || null);
+      }
+    } catch (err) {
+      console.error(err);
+      alert(err.response?.data?.message || "Failed to rename channel");
     }
   };
 
@@ -372,6 +440,10 @@ const Dashboard = () => {
     fetchWorkspaces();
   }, []);
 
+  useEffect(() => {
+    localStorage.setItem("workspaceSidebarExpanded", sidebarExpanded);
+  }, [sidebarExpanded]);
+
   return (
     <div className="flex h-screen overflow-hidden bg-neutral-50 text-neutral-950">
       <WorkspaceSidebar
@@ -379,9 +451,13 @@ const Dashboard = () => {
         selectedWorkspace={selectedWorkspace}
         onWorkspaceClick={handleWorkspaceClick}
         setShowModal={setShowModal}
+        setShowJoinModal={setShowJoinModal}
         user={user}
         logout={logout}
         deleteWorkspace={deleteWorkspace}
+        updateWorkspace={updateWorkspace}
+        sidebarExpanded={sidebarExpanded}
+        setSidebarExpanded={setSidebarExpanded}
       />
       <ChannelSidebar
         user={user}
@@ -391,6 +467,7 @@ const Dashboard = () => {
         setShowChannelModal={setShowChannelModal}
         onChannelClick={handleChannelClick}
         deleteChannel={deleteChannel}
+        updateChannel={updateChannel}
       />
 
       <MainContent
