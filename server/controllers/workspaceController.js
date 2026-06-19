@@ -142,3 +142,46 @@ export const joinWorkspace = async (req, res) => {
     });
   }
 };
+
+export const deleteWorkspace = async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    const { data: workspace, error: workspaceError } = await supabase
+      .from("workspaces")
+      .select("*")
+      .eq("id", id)
+      .single();
+
+    if (workspaceError || !workspace) {
+      return res.status(404).json({
+        message: "Workspace not found",
+      });
+    }
+
+    if (workspace.owner_id !== req.user.id) {
+      return res.status(403).json({
+        message: "Only the workspace owner can delete this workspace",
+      });
+    }
+
+    const { error } = await supabase
+      .from("workspaces")
+      .delete()
+      .eq("id", id);
+
+    if (error) {
+      return res.status(400).json({
+        message: error.message,
+      });
+    }
+
+    res.json({
+      message: "Workspace deleted",
+    });
+  } catch (err) {
+    res.status(500).json({
+      message: err.message,
+    });
+  }
+};

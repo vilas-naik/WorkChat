@@ -129,6 +129,37 @@ const Dashboard = () => {
     }
   };
 
+  const deleteWorkspace = async (workspace) => {
+    const confirmed = window.confirm(`Delete ${workspace.name}? This will remove all channels and messages in the workspace.`);
+
+    if (!confirmed) return;
+
+    try {
+      const token = localStorage.getItem("token");
+
+      await api.delete(`/workspaces/${workspace.id}`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
+      const { data } = await api.get("/workspaces", {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
+      setWorkspaces(data);
+      setSelectedWorkspace(null);
+      setSelectedChannel(null);
+      setChannels([]);
+      setMessages([]);
+    } catch (err) {
+      console.error(err);
+      alert(err.response?.data?.message || "Failed to delete workspace");
+    }
+  };
+
   const fetchChannels = async (workspaceId) => {
     try {
       const token = localStorage.getItem("token");
@@ -186,6 +217,40 @@ const Dashboard = () => {
       setShowChannelModal(false);
     } catch (err) {
       console.error(err);
+    }
+  };
+
+  const deleteChannel = async (channel) => {
+    if (!selectedWorkspace) return;
+
+    const confirmed = window.confirm(`Delete #${channel.name}? This will remove all messages in the channel.`);
+
+    if (!confirmed) return;
+
+    try {
+      const token = localStorage.getItem("token");
+
+      await api.delete(`/channels/${channel.id}`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
+      const { data } = await api.get(`/channels/${selectedWorkspace.id}`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
+      setChannels(data);
+
+      if (selectedChannel?.id === channel.id) {
+        setSelectedChannel(null);
+        setMessages([]);
+      }
+    } catch (err) {
+      console.error(err);
+      alert(err.response?.data?.message || "Failed to delete channel");
     }
   };
 
@@ -316,15 +381,16 @@ const Dashboard = () => {
         setShowModal={setShowModal}
         user={user}
         logout={logout}
+        deleteWorkspace={deleteWorkspace}
       />
       <ChannelSidebar
+        user={user}
         channels={channels}
         selectedWorkspace={selectedWorkspace}
         selectedChannel={selectedChannel}
-        setSelectedChannel={setSelectedChannel}
         setShowChannelModal={setShowChannelModal}
         onChannelClick={handleChannelClick}
-        handleChannelClick={handleChannelClick}
+        deleteChannel={deleteChannel}
       />
 
       <MainContent

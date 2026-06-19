@@ -2,6 +2,7 @@ import express from "express";
 
 import {
   createChannel,
+  deleteChannel,
   getChannels,
 } from "../controllers/channelController.js";
 
@@ -19,6 +20,12 @@ router.get(
   "/:workspaceId",
   authMiddleware,
   getChannels
+);
+
+router.delete(
+  "/:id",
+  authMiddleware,
+  deleteChannel
 );
 
 export default router;

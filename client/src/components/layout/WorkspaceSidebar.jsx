@@ -10,6 +10,7 @@ const WorkspaceSidebar = ({
   setShowModal,
   user,
   logout,
+  deleteWorkspace,
 }) => {
   return (
     <aside className="flex h-screen w-20 shrink-0 flex-col items-center border-r border-neutral-800 bg-neutral-950 px-3 py-5 text-white sm:w-24">
@@ -20,11 +21,11 @@ const WorkspaceSidebar = ({
       <div className="flex flex-1 flex-col items-center gap-3 overflow-y-auto">
         {workspaces.map((workspace) => {
           const isActive = selectedWorkspace?.id === workspace.id;
+          const canDeleteWorkspace = workspace.owner_id === user?.id;
 
           return (
-            <div>
+            <div key={workspace.id} className="relative">
               <button
-                key={workspace.id}
                 onClick={() => onWorkspaceClick(workspace)}
                 title={workspace.name}
                 className={`group flex h-12 w-12 items-center justify-center rounded-2xl text-base font-bold transition-all duration-200 ${
@@ -37,6 +38,19 @@ const WorkspaceSidebar = ({
                   {getWorkspaceInitial(workspace.name)}
                 </span>
               </button>
+
+              {isActive && canDeleteWorkspace && (
+                <button
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    deleteWorkspace(workspace);
+                  }}
+                  title={`Delete ${workspace.name}`}
+                  className="absolute -right-1 -top-1 flex h-5 w-5 items-center justify-center rounded-full bg-neutral-800 text-xs text-neutral-500 ring-1 ring-white/10 transition hover:bg-red-500/20 hover:text-red-300"
+                >
+                  x
+                </button>
+              )}
             </div>
           );
         })}

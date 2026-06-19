@@ -4,6 +4,7 @@ import authMiddleware from "../middleware/authMiddleware.js";
 
 import {
   createWorkspace,
+  deleteWorkspace,
   getWorkspaces,
   joinWorkspace
 } from "../controllers/workspaceController.js";
@@ -15,4 +16,7 @@ router.post("/", authMiddleware, createWorkspace);
 router.get("/", authMiddleware, getWorkspaces);
 
 router.post("/join", authMiddleware, joinWorkspace);
+
+router.delete("/:id", authMiddleware, deleteWorkspace);
+
 export default router;

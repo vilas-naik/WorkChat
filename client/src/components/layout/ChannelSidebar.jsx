@@ -3,14 +3,17 @@ import "react-tooltip/dist/react-tooltip.css";
 import { useState } from "react";
 
 const ChannelSidebar = ({
+  user,
   selectedWorkspace,
   channels,
   selectedChannel,
   setShowChannelModal,
   onChannelClick,
-  handleChannelClick,
+  deleteChannel,
 }) => {
   const [copied, setCopied] = useState(false);
+  const canDeleteChannels = selectedWorkspace?.owner_id === user?.id;
+
   return (
     <aside className="hidden h-screen w-64 shrink-0 flex-col border-r border-neutral-800 bg-neutral-900 text-white md:flex lg:w-72">
       <div className="border-b border-white/10 px-5 py-5">
@@ -70,19 +73,37 @@ const ChannelSidebar = ({
               </p>
             </div>
           ) : channels.length > 0 ? (
-            channels.map((channel, index) => (
-              <button
+            channels.map((channel) => (
+              <div
                 key={channel.id}
-                onClick={() => onChannelClick(channel)}
                 className={`flex w-full items-center gap-2 rounded-xl px-3 py-2.5 text-left text-sm font-medium transition-all duration-200 ${
                   selectedChannel?.id === channel.id
                     ? "bg-white/10 text-white shadow-sm"
                     : "text-neutral-400 hover:bg-white/5 hover:text-white"
                 }`}
               >
-                <span className="text-neutral-500">#</span>
-                <span className="truncate">{channel.name}</span>
-              </button>
+                <div className="flex min-w-0 flex-1 items-center gap-1">
+                  <button
+                    onClick={() => onChannelClick(channel)}
+                    className="flex min-w-0 items-center gap-2 text-left"
+                  >
+                    <span className="text-neutral-500">#</span>
+                    <span className="truncate">{channel.name}</span>
+                  </button>
+                  {canDeleteChannels && (
+                    <button
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        deleteChannel(channel);
+                      }}
+                      className="shrink-0 rounded px-1 text-xs text-neutral-600 transition hover:bg-red-500/10 hover:text-red-300"
+                      aria-label={`Delete ${channel.name}`}
+                    >
+                      x
+                    </button>
+                  )}
+                </div>
+              </div>
             ))
           ) : (
             <div className="rounded-2xl border border-white/10 bg-white/[0.03] px-4 py-5">
