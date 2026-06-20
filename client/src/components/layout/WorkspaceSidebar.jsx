@@ -20,8 +20,14 @@ const WorkspaceSidebar = ({
 }) => {
   const [editingWorkspace, setEditingWorkspace] = useState(null);
   const [workspaceName, setWorkspaceName] = useState("");
+  const [workspaceSearch, setWorkspaceSearch] = useState("");
   const inputRef = useRef(null);
   const renameFormRef = useRef(null);
+  const filteredWorkspaces = workspaces.filter((workspace) =>
+    workspace.name
+      .toLocaleLowerCase()
+      .includes(workspaceSearch.trim().toLocaleLowerCase()),
+  );
 
   const cancelRenamingWorkspace = () => {
     setEditingWorkspace(null);
@@ -100,12 +106,30 @@ const WorkspaceSidebar = ({
         </span>
       </button>
 
+      <div className={`mb-5 transition-all duration-300 ${sidebarExpanded ? "w-full" : "w-12"}`}>
+        <label htmlFor="workspace-search" className="sr-only">
+          Search workspaces
+        </label>
+        <input
+          id="workspace-search"
+          type="search"
+          value={workspaceSearch}
+          onFocus={() => setSidebarExpanded(true)}
+          onChange={(event) => setWorkspaceSearch(event.target.value)}
+          placeholder={sidebarExpanded ? "Search workspaces" : "Search"}
+          title="Search workspaces"
+          className={`h-10 rounded-xl border border-white/10 bg-neutral-900 text-sm text-white outline-none transition-all duration-300 placeholder:text-neutral-500 focus:border-blue-500 ${
+            sidebarExpanded ? "w-full px-3" : "w-12 px-2 text-transparent placeholder:text-transparent"
+          }`}
+        />
+      </div>
+
       <div
         className={`flex flex-1 flex-col gap-3 overflow-y-auto transition-all duration-300 ${
           sidebarExpanded ? "items-stretch" : "items-center"
         }`}
       >
-        {workspaces.map((workspace) => {
+        {filteredWorkspaces.map((workspace) => {
           const isActive = selectedWorkspace?.id === workspace.id;
           const canManageWorkspace = workspace.owner_id === user?.id;
           const isEditing = editingWorkspace === workspace.id;
@@ -232,6 +256,17 @@ const WorkspaceSidebar = ({
             </div>
           );
         })}
+
+        {workspaceSearch.trim() && filteredWorkspaces.length === 0 && (
+          <div
+            className={`rounded-2xl border border-white/10 bg-white/[0.03] text-center transition-all duration-300 ${
+              sidebarExpanded ? "px-3 py-4 opacity-100" : "h-0 overflow-hidden opacity-0"
+            }`}
+          >
+            <p className="text-sm font-medium text-neutral-300">No workspaces found</p>
+            <p className="mt-1 text-xs text-neutral-500">Try a different search.</p>
+          </div>
+        )}
 
         <button
           onClick={() => setShowModal(true)}

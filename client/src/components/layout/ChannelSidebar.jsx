@@ -15,7 +15,11 @@ const ChannelSidebar = ({
   const [copied, setCopied] = useState(false);
   const [editingChannel, setEditingChannel] = useState(null);
   const [channelName, setChannelName] = useState("");
+  const [channelSearch, setChannelSearch] = useState("");
   const canDeleteChannels = selectedWorkspace?.owner_id === user?.id;
+  const filteredChannels = channels.filter((channel) =>
+    channel.name.toLocaleLowerCase().includes(channelSearch.trim().toLocaleLowerCase()),
+  );
 
   const startRenamingChannel = (channel) => {
     setEditingChannel(channel.id);
@@ -67,6 +71,20 @@ const ChannelSidebar = ({
       </div>
 
       <div className="flex-1 overflow-y-auto px-3 py-5">
+        <div className="mb-4 px-2">
+          <label htmlFor="channel-search" className="sr-only">
+            Search channels
+          </label>
+          <input
+            id="channel-search"
+            type="search"
+            value={channelSearch}
+            onChange={(event) => setChannelSearch(event.target.value)}
+            placeholder="Search channels"
+            className="w-full rounded-xl border border-white/10 bg-white/5 px-3 py-2 text-sm text-white outline-none transition placeholder:text-neutral-500 focus:border-blue-500 focus:bg-white/10"
+          />
+        </div>
+
         <div className="mb-3 flex items-center justify-between px-2">
           <p className="text-sm font-semibold text-neutral-300">Channels</p>
           {selectedWorkspace && (
@@ -88,8 +106,8 @@ const ChannelSidebar = ({
                 Choose a workspace to view channels.
               </p>
             </div>
-          ) : channels.length > 0 ? (
-            channels.map((channel) => (
+          ) : filteredChannels.length > 0 ? (
+            filteredChannels.map((channel) => (
               <div
                 key={channel.id}
                 className={`flex w-full items-center gap-2 rounded-xl px-3 py-2.5 text-left text-sm font-medium transition-all duration-200 ${
@@ -160,6 +178,11 @@ const ChannelSidebar = ({
                 </div>
               </div>
             ))
+          ) : channelSearch.trim() ? (
+            <div className="rounded-2xl border border-white/10 bg-white/[0.03] px-4 py-5 text-center">
+              <p className="text-sm font-medium text-neutral-300">No channels found</p>
+              <p className="mt-1 text-sm text-neutral-500">Try a different search.</p>
+            </div>
           ) : (
             <div className="rounded-2xl border border-white/10 bg-white/[0.03] px-4 py-5">
               <p className="text-sm font-medium text-neutral-300">
