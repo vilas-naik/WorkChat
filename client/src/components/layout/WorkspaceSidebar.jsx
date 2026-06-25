@@ -116,7 +116,7 @@ const WorkspaceSidebar = ({
           value={workspaceSearch}
           onFocus={() => setSidebarExpanded(true)}
           onChange={(event) => setWorkspaceSearch(event.target.value)}
-          placeholder={sidebarExpanded ? "Search workspaces" : "Search"}
+          placeholder={sidebarExpanded ? "Search workspaces" : "🔍︎"}
           title="Search workspaces"
           className={`h-10 rounded-xl border border-white/10 bg-neutral-900 text-sm text-white outline-none transition-all duration-300 placeholder:text-neutral-500 focus:border-blue-500 ${
             sidebarExpanded ? "w-full px-3" : "w-12 px-2 text-transparent placeholder:text-transparent"
@@ -125,7 +125,7 @@ const WorkspaceSidebar = ({
       </div>
 
       <div
-        className={`flex flex-1 flex-col gap-3 overflow-y-auto transition-all duration-300 ${
+        className={`flex flex-1 flex-col gap-3 overflow-y-auto scrollbar-none transition-all duration-300 ${
           sidebarExpanded ? "items-stretch" : "items-center"
         }`}
       >
