@@ -89,7 +89,7 @@ const WorkspaceSidebar = ({
     >
       <button
         onClick={() => setSidebarExpanded((expanded) => !expanded)}
-        className={`mb-7 flex h-12 items-center rounded-2xl bg-white text-neutral-950 shadow-lg shadow-black/30 transition-all duration-300 hover:-translate-y-0.5 ${
+        className={`mb-7 flex h-12 items-center rounded-2xl bg-white text-neutral-950 transition-all duration-300 hover:-translate-y-0.5 ${
           sidebarExpanded ? "w-full justify-start gap-3 px-3" : "w-12 justify-center"
         }`}
         title={sidebarExpanded ? "Collapse sidebar" : "Expand sidebar"}
@@ -139,7 +139,7 @@ const WorkspaceSidebar = ({
               <div
                 className={`flex min-h-12 items-center rounded-2xl transition-all duration-300 ${
                   isActive
-                    ? "bg-blue-600 text-white shadow-lg shadow-blue-950/50"
+                    ? "bg-blue-600 text-white"
                     : "bg-neutral-900 text-neutral-300 ring-1 ring-white/5 hover:-translate-y-0.5 hover:bg-neutral-800 hover:text-white"
                 } ${sidebarExpanded ? "w-full gap-3 px-3 py-2" : "w-12 justify-center"}`}
               >

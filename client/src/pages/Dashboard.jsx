@@ -31,6 +31,12 @@ const Dashboard = () => {
   const [sidebarExpanded, setSidebarExpanded] = useState(
     () => localStorage.getItem("workspaceSidebarExpanded") === "true",
   );
+  const [toast, setToast] = useState(null);
+
+  const showToast = (message, type = "error") => {
+    setToast({ message, type });
+    setTimeout(() => setToast(null), 3000);
+  };
 
   const logout = () => {
     localStorage.removeItem("token");
@@ -48,7 +54,6 @@ const Dashboard = () => {
       });
 
       setWorkspaces(data);
-      console.log("WORKSPACES:", data);
     } catch (err) {
       console.error(err);
     }
@@ -128,7 +133,7 @@ const Dashboard = () => {
       setShowJoinModal(false);
     } catch (err) {
       console.error(err);
-      alert(err.response?.data?.message || "Failed to join workspace");
+      showToast(err.response?.data?.message || "Failed to join workspace");
     }
   };
 
@@ -159,7 +164,7 @@ const Dashboard = () => {
       setMessages([]);
     } catch (err) {
       console.error(err);
-      alert(err.response?.data?.message || "Failed to delete workspace");
+      showToast(err.response?.data?.message || "Failed to delete workspace");
     }
   };
 
@@ -189,7 +194,7 @@ const Dashboard = () => {
       setSelectedWorkspace(data.find((item) => item.id === workspace.id) || null);
     } catch (err) {
       console.error(err);
-      alert(err.response?.data?.message || "Failed to rename workspace");
+      showToast(err.response?.data?.message || "Failed to rename workspace");
     }
   };
 
@@ -226,7 +231,7 @@ const Dashboard = () => {
   const createChannel = async () => {
     try {
       if (!selectedWorkspace) {
-        alert("Select a workspace first");
+        showToast("Select a workspace first");
         return;
       }
       const token = localStorage.getItem("token");
@@ -283,7 +288,7 @@ const Dashboard = () => {
       }
     } catch (err) {
       console.error(err);
-      alert(err.response?.data?.message || "Failed to delete channel");
+      showToast(err.response?.data?.message || "Failed to delete channel");
     }
   };
 
@@ -318,7 +323,7 @@ const Dashboard = () => {
       }
     } catch (err) {
       console.error(err);
-      alert(err.response?.data?.message || "Failed to rename channel");
+      showToast(err.response?.data?.message || "Failed to rename channel");
     }
   };
 
@@ -333,12 +338,10 @@ const Dashboard = () => {
       });
 
       setMessages(data);
-      console.log(data);
     } catch (err) {
       console.error(err);
     }
   };
-
   const sendMessage = async () => {
     if (!messageInput.trim()) return;
 
@@ -469,7 +472,6 @@ const Dashboard = () => {
         deleteChannel={deleteChannel}
         updateChannel={updateChannel}
       />
-
       <MainContent
         user={user}
         selectedWorkspace={selectedWorkspace}
@@ -485,7 +487,6 @@ const Dashboard = () => {
         setEditingMessage={setEditingMessage}
         editText={editText}
         setEditText={setEditText}
-        updateMessage={updateMessage}
       />
 
       {showModal && (
@@ -674,10 +675,203 @@ const Dashboard = () => {
               py-2
             "
               >
+              <p className="text-sm font-semibold uppercase tracking-wide text-blue-600">New workspace</p>
+              <h2 className="mt-2 text-2xl font-bold tracking-tight text-neutral-950">Create Workspace</h2>
+            </div>
+            <button
+              onClick={() => {
+                setShowModal(false);
+                setShowJoinModal(true);
+              }}
+              className="
+    rounded-xl
+    border
+    px-4
+    py-2
+    text-sm
+    font-medium
+  "
+            >
+              Join Workspace
+            </button>
+
+            <input
+              value={workspaceName}
+              onChange={(e) => setWorkspaceName(e.target.value)}
+              placeholder="Workspace Name"
+              className="mt-6 w-full rounded-2xl border border-neutral-200 bg-neutral-50 px-4 py-3 text-neutral-950 outline-none transition placeholder:text-neutral-400 focus:border-blue-500 focus:bg-white focus:ring-4 focus:ring-blue-100"
+            />
+
+            <div className="mt-5 flex gap-3">
+              <button
+                onClick={() => setShowModal(false)}
+                className="flex-1 rounded-2xl border border-neutral-200 px-4 py-3 font-semibold text-neutral-700 transition hover:bg-neutral-50"
+              >
+                Cancel
+              </button>
+
+              <button disabled={creatingWorkspace} onClick={createWorkspace}>
+                {creatingWorkspace ? "Creating..." : "Create"}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {showJoinModal && (
+        <div
+          className="fixed inset-0 
+      flex
+      items-center
+      justify-center
+      bg-black/50
+    "
+        >
+          <div
+            className="
+        w-96
+        rounded-3xl
+        bg-white
+        p-6
+      "
+          >
+            <h2
+              className="
+          mb-4
+          text-xl
+          font-bold
+        "
+            >
+              Join Workspace
+            </h2>
+
+            <input
+              value={inviteCode}
+              onChange={(e) => setInviteCode(e.target.value)}
+              placeholder="Invite Code"
+              className="
+          w-full
+          rounded-xl
+          border
+          p-3
+        "
+            />
+
+            <div className="mt-4 flex gap-3">
+              <button
+                onClick={() => setShowJoinModal(false)}
+                className="
+            flex-1
+            rounded-xl
+            border
+            py-2
+            transition-all duration-300 hover:bg-neutral-100
+          "
+              >
+                Cancel
+              </button>
+
+              <button
+                onClick={joinWorkspace}
+                className="
+            flex-1
+            rounded-xl
+            bg-blue-600
+            py-2
+            text-white
+            transition-all duration-300 hover:bg-blue-700
+          "
+              >
+                Join
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {showChannelModal && (
+        <div
+          className="
+        fixed
+        inset-0
+        bg-black/50
+        flex
+        items-center
+        justify-center
+      "
+        >
+          <div
+            className="
+          bg-white
+          rounded-3xl
+          p-6
+          w-96
+        "
+          >
+            <h2
+              className="
+            text-xl
+            font-bold
+            mb-4
+          "
+            >
+              Create Channel
+            </h2>
+
+            <input
+              value={channelName}
+              onChange={(e) => setChannelName(e.target.value)}
+              placeholder="general"
+              className="
+            w-full
+            border
+            rounded-xl
+            p-3
+          "
+            />
+
+            <div
+              className="
+            flex
+            gap-3
+            mt-4
+          "
+            >
+              <button
+                onClick={() => setShowChannelModal(false)}
+                className="
+              flex-1
+              border
+              rounded-xl
+              py-2
+              transition-all duration-300 hover:bg-neutral-100
+            "
+              >
+                Cancel
+              </button>
+
+              <button
+                onClick={createChannel}
+                className="
+              flex-1
+              bg-black
+              text-white
+              rounded-xl
+              py-2
+              transition-all duration-300 hover:bg-neutral-800
+            "
+              >
                 Create
               </button>
             </div>
           </div>
+        </div>
+      )}
+
+      {toast && (
+        <div className="fixed bottom-4 right-4 z-[100] flex items-center rounded-xl bg-neutral-900 px-4 py-3 text-sm text-white shadow-xl ring-1 ring-white/10 transition-all duration-300">
+          <span className="mr-2">{toast.type === "error" ? "⚠️" : "✅"}</span>
+          {toast.message}
         </div>
       )}
     </div>

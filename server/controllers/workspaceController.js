@@ -68,13 +68,6 @@ export const getWorkspaces = async (req, res) => {
   `,
       )
       .eq("user_id", req.user.id);
-    console.log(error);
-
-    if (error) {
-      return res.status(400).json({
-        message: error.message,
-      });
-    }
     if (error) {
       return res.status(400).json({
         message: error.message,
