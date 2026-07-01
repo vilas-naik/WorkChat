@@ -31,7 +31,7 @@ WorkChat enables teams to create workspaces, organize discussions into channels,
 
 ### Messaging
 
-* Real-Time Messaging
+* Real-Time Messaging (Supabase Realtime)
 * Edit Messages
 * Delete Messages
 * Copy Messages
@@ -140,11 +140,19 @@ npm run dev
 
 ### Environment Variables
 
-Create a `.env` file and add:
+Create a `.env` file in client and server folder and add:
 
-```env
+# Client
+```
+VITE_SUPABASE_URL=
+VITE_SUPABASE_ANON_KEY=
+VITE_API_URL=
+```
+
+# Server
+```
 SUPABASE_URL=
-SUPABASE_ANON_KEY=
+SUPABASE_SERVICE_ROLE_KEY=
 JWT_SECRET=
 ```
 
@@ -152,15 +160,39 @@ JWT_SECRET=
 
 ## Screenshots
 
-Add screenshots or GIFs here showcasing:
+| Authentication | Workspace Management |
+|----------------|----------------------|
+| ![](docs/images/login.png) | ![](docs/images/workspace.png) |
 
-* Authentication
-* Workspace Management
-* Channel Management
-* Real-Time Messaging
-* Message Editing & Deletion
+| Channel Management | Chat Screen |
+|--------------------|-------------|
+| ![](docs/images/channel.png) | ![](docs/images/chatscreen.png) |
 
 ---
+
+## Folder Structure
+```
+WorkChat
+│
+├── client
+│   ├── components
+│   ├── pages
+│   ├── hooks
+│   └── services
+│
+├── server
+│   ├── routes
+│   ├── controllers
+│   ├── middleware
+│   └── config
+│
+└── README.md
+```
+
+## Learning Outcomes
+```
+This project strengthened my understanding of authentication, REST API design, real-time communication, PostgreSQL, state management, and building scalable full-stack applications.
+```
 
 ## License
 
