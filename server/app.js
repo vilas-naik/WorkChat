@@ -18,7 +18,7 @@ app.use(
   cors({
     origin: [
       "http://localhost:5173",
-      "https://workchat-realtime.netlify.app/register",
+      "https://workchat-realtime.netlify.app",
     ],
     credentials: true,
   })
