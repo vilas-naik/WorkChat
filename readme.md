@@ -177,13 +177,11 @@ WorkChat
 ├── client
 │   ├── components
 │   ├── pages
-│   ├── hooks
 │   └── services
 │
 ├── server
 │   ├── routes
 │   ├── controllers
-│   ├── middleware
 │   └── config
 │
 └── README.md
